@@ -1,0 +1,25 @@
+required = [
+    "github.com/Sirupsen/logrus",
+    "github.com/dustin/go-humanize",
+    "github.com/urfave/cli",
+    "k8s.io/apimachinery/pkg/apis/meta/v1",
+    "k8s.io/apimachinery/pkg/conversion",
+    "k8s.io/client-go/kubernetes",
+    "k8s.io/client-go/rest",
+    "k8s.io/client-go/tools/cache",
+    "k8s.io/client-go/tools/clientcmd",
+    "k8s.io/client-go/plugin/pkg/client/auth",
+    ]
+
+[prune]
+  go-tests = true
+
+
+# STANZAS BELOW ARE GENERATED AND MAY BE WRITTEN - DO NOT MODIFY BELOW THIS LINE.
+
+# For dependency below: Refer to issue https://github.com/golang/dep/issues/1799
+[[override]]
+name = "gopkg.in/fsnotify.v1"
+source = "https://github.com/fsnotify/fsnotify.git"
+version="v1.4.7"
+
