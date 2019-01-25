@@ -45,6 +45,10 @@ func main() {
 		requestMethod := os.Getenv("REQ_METHOD")
 		requestPayload := os.Getenv("REQ_PAYLOAD")
 
+		if requestMethod == "" {
+			requestMethod = "GET"
+		}
+
 		if namespace == "" {
 			file, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/namespace")
 			if err != nil {
@@ -68,7 +72,6 @@ func main() {
 func startWatchConfigMaps(pathToCfg, namespace, label, folder, requestUrl, requestMethod, requestPayload string) {
 	clientSet, _ := getClient(pathToCfg)
 	listOptions := metav1.ListOptions{
-		LabelSelector: fmt.Sprintf("%s=1", label),
 	}
 
 	watcher, err := clientSet.CoreV1().ConfigMaps(namespace).Watch(listOptions)
@@ -93,34 +96,36 @@ func startWatchConfigMaps(pathToCfg, namespace, label, folder, requestUrl, reque
 				logrus.Fatal("unexpected type")
 				continue
 			}
-			for k, v := range configMap.Data {
-				logrus.Infof("create or update file %s", k)
+			if _, ok := configMap.Labels[label]; ok {
+				for k, v := range configMap.Data {
+					logrus.Infof("create or update file %s", k)
 
-				err := ioutil.WriteFile(fmt.Sprintf("%s/%s", folder, k), []byte(v), 0644)
-				if err != nil {
-					logrus.Errorf("error writing file %v", err)
+					err := ioutil.WriteFile(fmt.Sprintf("%s/%s", folder, k), []byte(v), 0644)
+					if err != nil {
+						logrus.Errorf("error writing file %v", err)
+					}
 				}
-			}
-			if requestUrl != "" && requestMethod != "" {
+				if requestUrl != "" && requestMethod != "" {
 
-				var body io.Reader = nil
-				if requestPayload != "" {
-					body = bytes.NewBuffer([]byte(requestPayload))
-				}
-				req, err := http.NewRequest(requestMethod, requestUrl, body)
-				if err != nil {
-					logrus.Errorf("error:", err)
-					continue
-				}
-				resp, err := http.DefaultClient.Do(req)
-				if err != nil {
-					logrus.Errorf("error:", err)
-					continue
-				}
-				resp.Body.Close()
-				if resp.StatusCode != 200 {
-					logrus.Infof("error: Received response code %s , expected %s", resp.StatusCode, 200)
-					continue
+					var body io.Reader = nil
+					if requestPayload != "" {
+						body = bytes.NewBuffer([]byte(requestPayload))
+					}
+					req, err := http.NewRequest(requestMethod, requestUrl, body)
+					if err != nil {
+						logrus.Errorf("error:", err)
+						continue
+					}
+					resp, err := http.DefaultClient.Do(req)
+					if err != nil {
+						logrus.Errorf("error:", err)
+						continue
+					}
+					resp.Body.Close()
+					if resp.StatusCode != 200 {
+						logrus.Infof("error: Received response code %s , expected %s", resp.StatusCode, 200)
+						continue
+					}
 				}
 			}
 		}
