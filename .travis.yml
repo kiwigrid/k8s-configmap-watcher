@@ -21,7 +21,7 @@ notifications:
   email: false
 
 script:
-- docker build -t kiwigrid/k8s-configmap-watcher:${TRAVIS_BUILD_NUMBER}
+- docker build -t kiwigrid/k8s-configmap-watcher:${TRAVIS_BUILD_NUMBER} .
 - docker tag kiwigrid/k8s-configmap-watcher:${TRAVIS_BUILD_NUMBER} kiwigrid/k8s-configmap-watcher:latest
 - echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
 - docker push kiwigrid/k8s-configmap-watcher:${TRAVIS_BUILD_NUMBER}
