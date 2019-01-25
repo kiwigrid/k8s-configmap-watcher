@@ -1,0 +1,28 @@
+language: go
+go:
+- 1.11.x
+
+dist: xenial
+sudo: required
+
+# Force-enable Go modules. This will be unnecessary when Go 1.12 lands.
+env:
+- GO111MODULE=on
+
+git:
+  depth: 1
+
+# Skip the install step. Don't `go get` dependencies. Only build with the code
+# in vendor/
+install: true
+
+# Don't email me the results of the test runs.
+notifications:
+  email: false
+
+script:
+- docker build -t kiwigrid/k8s-configmap-watcher:${TRAVIS_BUILD_NUMBER}
+- docker tag kiwigrid/k8s-configmap-watcher:${TRAVIS_BUILD_NUMBER} kiwigrid/k8s-configmap-watcher:latest
+- echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
+- docker push kiwigrid/k8s-configmap-watcher:${TRAVIS_BUILD_NUMBER}
+- docker push kiwigrid/k8s-configmap-watcher:latest
