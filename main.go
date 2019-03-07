@@ -13,6 +13,7 @@ import (
 
 	"k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"k8s.io/client-go/rest"
@@ -71,8 +72,7 @@ func main() {
 
 func startWatchConfigMaps(pathToCfg, namespace, label, folder, requestUrl, requestMethod, requestPayload string) {
 	clientSet, _ := getClient(pathToCfg)
-	listOptions := metav1.ListOptions{
-	}
+	listOptions := metav1.ListOptions{}
 
 	watcher, err := clientSet.CoreV1().ConfigMaps(namespace).Watch(listOptions)
 	if err != nil {
@@ -98,11 +98,22 @@ func startWatchConfigMaps(pathToCfg, namespace, label, folder, requestUrl, reque
 			}
 			if _, ok := configMap.Labels[label]; ok {
 				for k, v := range configMap.Data {
-					logrus.Infof("create or update file %s", k)
+					if event.Type == watch.Added || event.Type == watch.Modified {
+						logrus.Infof("create or update file %s", k)
 
-					err := ioutil.WriteFile(fmt.Sprintf("%s/%s", folder, k), []byte(v), 0644)
-					if err != nil {
-						logrus.Errorf("error writing file %v", err)
+						err := ioutil.WriteFile(fmt.Sprintf("%s/%s", folder, k), []byte(v), 0644)
+						if err != nil {
+							logrus.Errorf("error writing file %v", err)
+						}
+					} else if event.Type == watch.Deleted {
+						logrus.Infof("delete file %s", k)
+
+						err := os.Remove(fmt.Sprintf("%s/%s", folder, k))
+						if err != nil {
+							logrus.Errorf("error deleting file %v", err)
+						}
+					} else {
+						logrus.WithField("event", event.Object).Error("event type was error")
 					}
 				}
 				if requestUrl != "" && requestMethod != "" {
