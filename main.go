@@ -113,7 +113,7 @@ func startWatchConfigMaps(pathToCfg, namespace, label, folder, requestUrl, reque
 							logrus.Errorf("error deleting file %v", err)
 						}
 					} else {
-						logrus.WithField("event", event.Object).Error("event type was error")
+						logrus.WithField("event", event.Object).Warn("event type was error")
 					}
 				}
 				if requestUrl != "" && requestMethod != "" {
