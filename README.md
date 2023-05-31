@@ -1,5 +1,9 @@
 # k8s-configmap-watcher
 
+# Archival Note
+
+⚠️ This repo (and the corresponding container image) is unmainteained. Please consider https://github.com/kiwigrid/k8s-sidecar instead.
+
 # What?
 
 This is a docker container intended to run inside a kubernetes cluster to collect config maps with a specified label and store the included files in an local folder. It can also send a html request to a specified URL after a configmap change. The main target is to be run as a sidecar container to supply an application with information from the cluster. The contained Go programm is working with the Kubernetes API 1.10
