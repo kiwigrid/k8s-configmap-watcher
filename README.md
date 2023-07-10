@@ -2,7 +2,7 @@
 
 # Archival Note
 
-⚠️ This repo (and the corresponding container image) is unmaintained. Please use https://github.com/kiwigrid/k8s-sidecar instead which is a maintained drop-in-replacement.
+⚠️ This repo (and the corresponding container image) is unmaintained. Please use https://github.com/kiwigrid/k8s-sidecar instead which is a maintained drop-in replacement.
 
 # What?
 
